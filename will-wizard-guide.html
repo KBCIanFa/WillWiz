@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australian Will Wizard — Guide &amp; Instructions</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Lora:ital,wght@0,400;0,600;1,400&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+:root {
+  --navy: #1a2744;
+  --navy-mid: #2a3a60;
+  --gold: #c9a84c;
+  --gold-light: #e8d5a0;
+  --gold-pale: #f9f4e6;
+  --cream: #f8f5ef;
+  --white: #ffffff;
+  --mid: #6b7280;
+  --border: #d6cfc4;
+  --text: #2c2c2c;
+  --warn-bg: #fff8e1;
+  --warn-border: #c9a84c;
+  --danger-bg: #fff0f0;
+  --danger-border: #c0392b;
+  --ok-bg: #f0f8f4;
+  --ok-border: #2e7d55;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--cream);
+  color: var(--text);
+  line-height: 1.7;
+}
+
+/* ── HERO ─────────────────────────────────── */
+.hero {
+  background: var(--navy);
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 60% 80% at 90% 50%, rgba(201,168,76,0.12) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 60% at 10% 80%, rgba(201,168,76,0.07) 0%, transparent 60%);
+}
+.hero-inner {
+  position: relative;
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 5rem 2rem 4rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 3rem;
+}
+.hero-text {}
+.hero-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 1.2rem;
+  border: 1px solid rgba(201,168,76,0.35);
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+}
+.hero h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  color: var(--white);
+  line-height: 1.15;
+  margin-bottom: 1.2rem;
+}
+.hero h1 em {
+  font-style: italic;
+  color: var(--gold-light);
+}
+.hero-sub {
+  font-family: 'Lora', serif;
+  font-size: 1.1rem;
+  color: rgba(255,255,255,0.72);
+  max-width: 540px;
+  line-height: 1.65;
+  margin-bottom: 2rem;
+}
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: var(--gold);
+  color: var(--navy);
+  font-family: 'Source Sans 3', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  padding: 0.85rem 2rem;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s;
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+.hero-cta:hover { background: #b8962f; transform: translateY(-2px); box-shadow: 0 6px 24px rgba(201,168,76,0.4); }
+.hero-seal {
+  width: 160px;
+  height: 160px;
+  flex-shrink: 0;
+  border: 2px solid rgba(201,168,76,0.3);
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
+  background: rgba(201,168,76,0.06);
+}
+.hero-seal .seal-icon { font-size: 3.5rem; }
+.hero-seal .seal-text { font-family: 'Playfair Display', serif; font-size: 0.65rem; color: var(--gold); text-transform: uppercase; letter-spacing: 0.1em; text-align: center; line-height: 1.4; }
+
+.hero-divider {
+  width: 100%;
+  height: 3px;
+  background: linear-gradient(90deg, var(--gold) 0%, rgba(201,168,76,0.2) 100%);
+}
+
+/* ── NAV ─────────────────────────────────── */
+.sticky-nav {
+  background: rgba(26,39,68,0.97);
+  backdrop-filter: blur(8px);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  border-bottom: 1px solid rgba(201,168,76,0.2);
+}
+.nav-inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  overflow-x: auto;
+}
+.nav-link {
+  display: inline-block;
+  padding: 0.9rem 1.1rem;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: rgba(255,255,255,0.65);
+  text-decoration: none;
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+.nav-link:hover { color: var(--gold); border-bottom-color: var(--gold); }
+.nav-cta-link {
+  margin-left: auto;
+  background: var(--gold);
+  color: var(--navy) !important;
+  border-radius: 4px;
+  padding: 0.5rem 1.2rem !important;
+  font-weight: 700;
+  margin-top: 0.35rem;
+  margin-bottom: 0.35rem;
+  flex-shrink: 0;
+  border-bottom: none !important;
+}
+.nav-cta-link:hover { background: #b8962f !important; }
+
+/* ── LAYOUT ──────────────────────────────── */
+.page-body {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 0 2rem;
+  display: grid;
+  grid-template-columns: 1fr 280px;
+  gap: 3rem;
+  align-items: start;
+  padding-top: 3rem;
+  padding-bottom: 5rem;
+}
+.main-content { min-width: 0; }
+.sidebar { position: sticky; top: 56px; }
+
+/* ── SECTION HEADINGS ────────────────────── */
+.section {
+  margin-bottom: 3.5rem;
+  scroll-margin-top: 70px;
+}
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+  margin-bottom: 0.6rem;
+}
+.section h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  color: var(--navy);
+  line-height: 1.2;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid var(--gold);
+  padding-bottom: 0.5rem;
+}
+.section > p, .section > .lede {
+  font-family: 'Lora', serif;
+  font-size: 1.02rem;
+  color: #444;
+  margin-bottom: 1.4rem;
+  line-height: 1.75;
+}
+
+/* ── ALERT BOXES ─────────────────────────── */
+.alert {
+  border-radius: 8px;
+  padding: 1.2rem 1.4rem;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  line-height: 1.65;
+}
+.alert strong { display: block; margin-bottom: 0.3rem; font-size: 0.95rem; }
+.alert-warn { background: var(--warn-bg); border-left: 4px solid var(--warn-border); color: #5a4000; }
+.alert-warn strong { color: #3a2800; }
+.alert-danger { background: var(--danger-bg); border-left: 4px solid var(--danger-border); color: #5a1a1a; }
+.alert-danger strong { color: #3a0000; }
+.alert-ok { background: var(--ok-bg); border-left: 4px solid var(--ok-border); color: #1a4030; }
+.alert-ok strong { color: #0a2a20; }
+.alert-navy { background: #f0f3fa; border-left: 4px solid var(--navy); color: #1a2744; }
+.alert-navy strong { color: #0e1a33; }
+
+/* ── STEPS ───────────────────────────────── */
+.steps-list { list-style: none; counter-reset: steps; }
+.steps-list li {
+  counter-increment: steps;
+  display: flex;
+  gap: 1.2rem;
+  margin-bottom: 1.4rem;
+  align-items: flex-start;
+}
+.steps-list li::before {
+  content: counter(steps);
+  flex-shrink: 0;
+  width: 36px; height: 36px;
+  background: var(--navy);
+  color: var(--white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.9rem;
+  font-family: 'Playfair Display', serif;
+  margin-top: 2px;
+}
+.steps-list li .step-body { flex: 1; }
+.steps-list li .step-title { font-weight: 700; color: var(--navy); font-size: 1rem; margin-bottom: 0.2rem; }
+.steps-list li .step-desc { font-size: 0.9rem; color: #555; line-height: 1.6; }
+
+/* ── CHECK/CROSS LIST ────────────────────── */
+.check-list { list-style: none; display: flex; flex-direction: column; gap: 0.55rem; margin: 0.8rem 0; }
+.check-list li { display: flex; gap: 0.7rem; font-size: 0.92rem; line-height: 1.55; align-items: flex-start; }
+.check-list li .ic { flex-shrink: 0; font-size: 1rem; margin-top: 1px; }
+
+/* ── CARD GRID ───────────────────────────── */
+.card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin: 1rem 0; }
+.info-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  padding: 1.2rem;
+  transition: box-shadow 0.2s;
+}
+.info-card:hover { box-shadow: 0 4px 20px rgba(26,39,68,0.08); }
+.info-card .card-icon { font-size: 1.6rem; margin-bottom: 0.5rem; }
+.info-card h4 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--navy); margin-bottom: 0.4rem; }
+.info-card p { font-size: 0.85rem; color: var(--mid); line-height: 1.55; }
+
+/* ── STATE TABLE ─────────────────────────── */
+.state-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+  margin: 1rem 0;
+  background: var(--white);
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(26,39,68,0.06);
+}
+.state-table th {
+  background: var(--navy);
+  color: var(--white);
+  padding: 0.75rem 1rem;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.state-table td {
+  padding: 0.7rem 1rem;
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+  line-height: 1.5;
+}
+.state-table tr:last-child td { border-bottom: none; }
+.state-table tr:nth-child(even) td { background: var(--cream); }
+.state-table .tag {
+  display: inline-block;
+  background: #e8f0fd;
+  color: var(--navy);
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 0.1rem 0.5rem;
+  border-radius: 10px;
+  margin-top: 0.2rem;
+}
+
+/* ── SIDEBAR ─────────────────────────────── */
+.sidebar-card {
+  background: var(--white);
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.2rem;
+}
+.sidebar-card-head {
+  background: var(--navy);
+  padding: 0.8rem 1rem;
+  font-family: 'Playfair Display', serif;
+  color: var(--white);
+  font-size: 0.95rem;
+  border-bottom: 2px solid var(--gold);
+}
+.sidebar-card-body { padding: 1rem; }
+.sidebar-card-body a {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+  font-size: 0.85rem;
+  color: var(--navy);
+  text-decoration: none;
+  border-bottom: 1px solid var(--border);
+  transition: color 0.15s;
+}
+.sidebar-card-body a:last-child { border-bottom: none; }
+.sidebar-card-body a:hover { color: var(--gold); }
+.sidebar-card-body .note { font-size: 0.82rem; color: var(--mid); line-height: 1.55; }
+
+.start-box {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-mid) 100%);
+  border-radius: 10px;
+  padding: 1.5rem;
+  text-align: center;
+  border: 2px solid rgba(201,168,76,0.3);
+}
+.start-box h3 { font-family: 'Playfair Display', serif; color: var(--white); margin-bottom: 0.4rem; }
+.start-box p { font-size: 0.82rem; color: var(--gold-light); margin-bottom: 1rem; line-height: 1.5; }
+.start-box a {
+  display: block;
+  background: var(--gold);
+  color: var(--navy);
+  font-weight: 700;
+  padding: 0.75rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+.start-box a:hover { background: #b8962f; }
+
+/* ── FAQ ─────────────────────────────────── */
+.faq-item {
+  border-bottom: 1px solid var(--border);
+  padding: 1rem 0;
+}
+.faq-item:last-child { border-bottom: none; }
+.faq-q {
+  font-family: 'Lora', serif;
+  font-weight: 600;
+  color: var(--navy);
+  font-size: 0.97rem;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  user-select: none;
+}
+.faq-q .toggle { font-size: 1.2rem; color: var(--gold); transition: transform 0.2s; flex-shrink: 0; }
+.faq-item.open .faq-q .toggle { transform: rotate(45deg); }
+.faq-a {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.7;
+  margin-top: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, margin-top 0.2s;
+}
+.faq-item.open .faq-a { max-height: 600px; margin-top: 0.7rem; }
+
+/* ── DISCLAIMER BOX ─────────────────────── */
+.big-disclaimer {
+  background: var(--navy);
+  color: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+.big-disclaimer::before {
+  content: '§';
+  position: absolute;
+  right: 1.5rem;
+  top: -0.5rem;
+  font-size: 8rem;
+  font-family: 'Playfair Display', serif;
+  color: rgba(201,168,76,0.08);
+  line-height: 1;
+}
+.big-disclaimer h3 { font-family: 'Playfair Display', serif; color: var(--gold-light); font-size: 1.3rem; margin-bottom: 1rem; }
+.big-disclaimer p { font-size: 0.88rem; color: rgba(255,255,255,0.82); line-height: 1.7; margin-bottom: 0.8rem; }
+.big-disclaimer p:last-child { margin-bottom: 0; }
+.big-disclaimer strong { color: var(--gold-light); }
+
+/* ── FOOTER ─────────────────────────────── */
+footer {
+  background: var(--navy);
+  border-top: 3px solid var(--gold);
+  padding: 2rem;
+  text-align: center;
+}
+footer p { font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.7; }
+footer a { color: var(--gold-light); text-decoration: none; }
+footer a:hover { color: var(--gold); }
+.footer-logo { font-family: 'Playfair Display', serif; color: var(--gold); font-size: 1.1rem; margin-bottom: 0.5rem; }
+
+/* ── UTILITY ─────────────────────────────── */
+.gold-rule { width: 60px; height: 3px; background: var(--gold); margin: 1rem 0; border-radius: 2px; }
+.text-gold { color: var(--gold); }
+b, strong { color: var(--navy); }
+
+@media (max-width: 768px) {
+  .hero-inner { grid-template-columns: 1fr; }
+  .hero-seal { display: none; }
+  .page-body { grid-template-columns: 1fr; }
+  .sidebar { position: static; }
+  .card-grid { grid-template-columns: 1fr; }
+  .nav-inner { padding: 0 1rem; }
+  .hero-inner { padding: 3rem 1.5rem 2.5rem; }
+  .page-body { padding: 1.5rem; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-text">
+      <div class="hero-eyebrow">⚖️ Australian Will Wizard</div>
+      <h1>Your complete guide to<br><em>making a valid Will</em><br>in Australia</h1>
+      <p class="hero-sub">Everything you need to know before you start — what a Will must contain, how to sign it correctly, and when you need a solicitor.</p>
+      <a href="will-wizard.html" class="hero-cta">Open the Will Wizard →</a>
+    </div>
+    <div class="hero-seal">
+      <div class="seal-icon">⚖️</div>
+      <div class="seal-text">Australian<br>Will Wizard<br>Guide</div>
+    </div>
+  </div>
+  <div class="hero-divider"></div>
+</div>
+
+<!-- STICKY NAV -->
+<nav class="sticky-nav">
+  <div class="nav-inner">
+    <a class="nav-link" href="#what-is">What is a Will?</a>
+    <a class="nav-link" href="#how-it-works">How It Works</a>
+    <a class="nav-link" href="#couples">Couples Wills</a>
+    <a class="nav-link" href="#signing">Signing</a>
+    <a class="nav-link" href="#state-rules">State Rules</a>
+    <a class="nav-link" href="#faq">FAQ</a>
+    <a class="nav-link" href="#disclaimer">Disclaimer</a>
+    <a class="nav-link nav-cta-link" href="will-wizard.html">Start Wizard →</a>
+  </div>
+</nav>
+
+<!-- BODY -->
+<div class="page-body">
+<main class="main-content">
+
+  <!-- WHAT IS A WILL -->
+  <section class="section" id="what-is">
+    <div class="section-label">⚖️ Fundamentals</div>
+    <h2>What is a Will?</h2>
+    <p>A Will (formally, a Last Will and Testament) is a legal document that sets out your wishes for how your estate — your property, money, and possessions — should be distributed after your death. It also names who you trust to carry out those wishes (your Executor), and can appoint guardians for any children under 18.</p>
+
+    <div class="alert alert-warn">
+      <strong>⚠️ Without a valid Will, you die "intestate"</strong>
+      Your estate is distributed according to your state or territory's intestacy laws — which may not reflect your wishes. The courts decide who receives your assets and who cares for your children. Making a Will is one of the most important things you can do for your family.
+    </div>
+
+    <div class="card-grid">
+      <div class="info-card">
+        <div class="card-icon">📋</div>
+        <h4>What a Will can do</h4>
+        <p>Name beneficiaries, appoint an executor, leave specific gifts, nominate guardians for children, establish a testamentary trust, and express funeral wishes.</p>
+      </div>
+      <div class="info-card">
+        <div class="card-icon">🚫</div>
+        <h4>What a Will cannot do</h4>
+        <p>Override jointly-held property (it passes automatically to the survivor), control superannuation (requires a binding death nomination), or override life insurance nominations.</p>
+      </div>
+      <div class="info-card">
+        <div class="card-icon">🔄</div>
+        <h4>Revoking a Will</h4>
+        <p>Marriage automatically revokes a previous Will in Australia (unless the Will was made in contemplation of that marriage). Divorce revokes gifts to a former spouse. A new Will revokes the previous one.</p>
+      </div>
+      <div class="info-card">
+        <div class="card-icon">🏦</div>
+        <h4>Superannuation</h4>
+        <p>Super does not automatically form part of your estate. Lodge a Binding Death Benefit Nomination (BDBN) directly with your super fund — separately to your Will.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- HOW THE WIZARD WORKS -->
+  <section class="section" id="how-it-works">
+    <div class="section-label">🧙 The Wizard</div>
+    <h2>How the Will Wizard Works</h2>
+    <p>The wizard guides you through six steps to collect everything needed for a complete, properly structured Will. It generates a formatted Word document (.docx) you can print, sign, and store.</p>
+
+    <ol class="steps-list">
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 1 — Testator Details</div>
+          <div class="step-desc">Your full legal name, date of birth, address, any aliases or former names, and current marital status. Use the exact name on your birth certificate or passport.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 2 — Executor(s)</div>
+          <div class="step-desc">Nominate the person responsible for carrying out your Will. We recommend also appointing a substitute executor in case your first choice is unable to act. You can also customise executor powers (sell property, invest funds, carry on business, etc.).</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 3 — Guardians for Minor Children</div>
+          <div class="step-desc">If you have children under 18, nominate who would care for them if both parents were deceased. A substitute guardian can also be named.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 4 — Beneficiaries</div>
+          <div class="step-desc">Add each person or organisation who receives a share of your residual estate (what's left after debts and specific gifts). You can also leave named specific gifts — a vehicle, item of jewellery, sum of money — to individual people.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 5 — Estate &amp; Final Wishes</div>
+          <div class="step-desc">Funeral preferences, debt instructions, provision for pets, digital assets, a testamentary trust for minor beneficiaries, and any other instructions you want included.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Step 6 — Review &amp; Download</div>
+          <div class="step-desc">Review a summary of all your entries, then download your formatted Will as a Word document (.docx). Print it, sign it with two witnesses, and store it safely.</div>
+        </div>
+      </li>
+    </ol>
+
+    <div class="alert alert-ok">
+      <strong>✅ What you'll need before you start</strong>
+      Full legal names and addresses of your executor, substitute executor, guardian (if applicable), and all beneficiaries. Having this information ready makes the process fast — most people complete it in under 15 minutes.
+    </div>
+  </section>
+
+  <!-- COUPLES WILLS -->
+  <section class="section" id="couples">
+    <div class="section-label">👫 Couples</div>
+    <h2>Couples Wills</h2>
+    <p>The wizard offers a <strong>Couples mode</strong> that allows two partners to create their Wills together in a single session. It generates two completely separate, independent legal documents — one for each partner.</p>
+
+    <div class="alert alert-navy">
+      <strong>ℹ️ Mirror Wills — the most common approach</strong>
+      Most couples create "mirror" Wills, where each partner leaves their entire estate to the other first. If the first partner dies, the survivor inherits everything. If both partners die (or the survivor dies without updating their Will), the estate passes to the nominated secondary beneficiaries — typically children or other family members in equal shares.
+    </div>
+
+    <h3 style="font-family:'Playfair Display',serif;color:var(--navy);font-size:1.15rem;margin:1.5rem 0 0.8rem;">How Couples mode works</h3>
+
+    <ol class="steps-list">
+      <li>
+        <div class="step-body">
+          <div class="step-title">Select "Couples Wills" on the opening screen</div>
+          <div class="step-desc">Partner tabs appear at the top — colour coded for easy identification throughout the session.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Complete Partner 1's details (all 5 steps)</div>
+          <div class="step-desc">Enter all details for the first partner. At Step 5, you'll be prompted to switch to Partner 2 before reviewing.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Use mirror shortcuts for Partner 2</div>
+          <div class="step-desc">Each step for Partner 2 includes a "Copy from Partner 1" option — address, guardians, beneficiary structure, and estate wishes can all be mirrored with a single click, then edited as needed.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Review and download both</div>
+          <div class="step-desc">The review screen shows a side-by-side summary. Download each Will individually, or use "Download Both" to get both files at once. Each file is named after the respective testator.</div>
+        </div>
+      </li>
+    </ol>
+
+    <div class="alert alert-warn">
+      <strong>⚠️ Important: Partners cannot witness each other's Wills if they are beneficiaries</strong>
+      In Australia, a beneficiary (or the spouse/de facto of a beneficiary) who witnesses a Will may lose their entitlement under that Will. In a mirror Will where each partner is the other's primary beneficiary, each partner should use two <em>independent</em> witnesses — not each other. The documents can be signed on the same day with the same two independent witnesses, one Will at a time.
+    </div>
+
+    <div class="alert alert-navy">
+      <strong>ℹ️ Mutual Wills vs Mirror Wills</strong>
+      Mirror Wills are two separate documents that happen to reflect each other. <strong>Mutual Wills</strong> are a legally binding agreement that neither party will change their Will without the other's consent — these require a solicitor. If you need a mutual Will arrangement (common in blended families), consult a solicitor rather than using this tool.
+    </div>
+  </section>
+
+  <!-- SIGNING -->
+  <section class="section" id="signing">
+    <div class="section-label">✍️ Execution</div>
+    <h2>How to Sign Your Will Correctly</h2>
+    <p>Signing a Will incorrectly is one of the most common reasons a Will is declared invalid. Follow these rules carefully — they apply in all Australian states and territories.</p>
+
+    <div class="gold-rule"></div>
+
+    <ol class="steps-list">
+      <li>
+        <div class="step-body">
+          <div class="step-title">Print your Will</div>
+          <div class="step-desc">Print all pages of your Will. Do not alter the document after printing — any handwritten changes must be formally witnessed or the alteration may not be valid.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Choose two eligible witnesses</div>
+          <div class="step-desc">Witnesses must be: (a) at least 18 years old, (b) of sound mind, and (c) NOT a beneficiary under the Will, nor the spouse or de facto partner of any beneficiary. Using an ineligible witness can void their gift — or in some states, invalidate the entire Will.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">All three people must be present together</div>
+          <div class="step-desc">You (the testator) and both witnesses must be in the same place at the same time. There are no exceptions to this requirement.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">You sign first, in the presence of both witnesses</div>
+          <div class="step-desc">Sign your full usual signature on the signature page. If there are multiple pages, you should also initial each page (not legally required in all states but strongly recommended).</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Both witnesses sign, in your presence and each other's</div>
+          <div class="step-desc">Each witness signs their full name and writes their address. This must happen after you have signed, and while everyone is still present together.</div>
+        </div>
+      </li>
+      <li>
+        <div class="step-body">
+          <div class="step-title">Store the original safely</div>
+          <div class="step-desc">Keep the signed original in a fireproof safe, with your solicitor, or lodged with your state Supreme Court (available in most states for a small fee). Tell your executor exactly where it is. Only the original signed Will is legally valid — photocopies are not.</div>
+        </div>
+      </li>
+    </ol>
+
+    <div class="alert alert-danger">
+      <strong>🚫 Never do these things with your Will</strong>
+      <ul class="check-list" style="margin-top:0.6rem">
+        <li><span class="ic">❌</span> Do not use staples, paper clips, or pins that leave holes — these suggest pages may have been removed or replaced.</li>
+        <li><span class="ic">❌</span> Do not write on, correct, or alter the Will after signing without proper witnessing.</li>
+        <li><span class="ic">❌</span> Do not sign pages in advance before your witnesses arrive.</li>
+        <li><span class="ic">❌</span> Do not use liquid paper or correction fluid.</li>
+        <li><span class="ic">❌</span> Do not let beneficiaries or their spouses act as witnesses.</li>
+        <li><span class="ic">❌</span> Do not sign photocopies — only the original bears legal force.</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- STATE RULES -->
+  <section class="section" id="state-rules">
+    <div class="section-label">🗺️ Jurisdictions</div>
+    <h2>State &amp; Territory Variations</h2>
+    <p>The core requirements for a valid Will are similar across Australia, but each state and territory has its own legislation. The table below summarises key points — always check current legislation for your jurisdiction.</p>
+
+    <table class="state-table">
+      <thead>
+        <tr>
+          <th>State / Territory</th>
+          <th>Governing Act</th>
+          <th>Key Notes</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>QLD</strong></td>
+          <td>Succession Act 1981</td>
+          <td>Can apply to Supreme Court to dispense with execution requirements in limited circumstances. Testamentary freedom is broad but family provision claims are common. <span class="tag">QLD</span></td>
+        </tr>
+        <tr>
+          <td><strong>NSW</strong></td>
+          <td>Succession Act 2006</td>
+          <td>Court has power to admit informal Wills. Family provision orders under Chapter 3 are regularly made. Spouse includes de facto partners. <span class="tag">NSW</span></td>
+        </tr>
+        <tr>
+          <td><strong>VIC</strong></td>
+          <td>Wills Act 1997</td>
+          <td>Courts can validate improperly executed Wills if the document clearly reflects the deceased's intentions. <span class="tag">VIC</span></td>
+        </tr>
+        <tr>
+          <td><strong>WA</strong></td>
+          <td>Wills Act 1970</td>
+          <td>Court can validate informal documents. Family provision under Inheritance (Family and Dependants Provision) Act 1972. <span class="tag">WA</span></td>
+        </tr>
+        <tr>
+          <td><strong>SA</strong></td>
+          <td>Wills Act 1936</td>
+          <td>Court has discretion to dispense with execution requirements. Spouses, children, and dependants may all make family provision claims. <span class="tag">SA</span></td>
+        </tr>
+        <tr>
+          <td><strong>TAS</strong></td>
+          <td>Wills Act 2008</td>
+          <td>Similar provisions to other states. Court may admit informal Wills. <span class="tag">TAS</span></td>
+        </tr>
+        <tr>
+          <td><strong>ACT</strong></td>
+          <td>Wills Act 1968</td>
+          <td>Follows similar structure to other mainland jurisdictions. Family provision under the Family Provision Act 1969. <span class="tag">ACT</span></td>
+        </tr>
+        <tr>
+          <td><strong>NT</strong></td>
+          <td>Wills Act 2000</td>
+          <td>Court may validate informal Wills. Intestacy rules under Administration and Probate Act 1969. <span class="tag">NT</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="alert alert-warn">
+      <strong>⚠️ Family provision claims</strong>
+      In every Australian state and territory, certain people — including spouses, children, and dependants — can apply to a court for a larger share of your estate even if you leave them nothing (or less than the court considers adequate). This is called a family provision claim. It cannot be prevented by your Will alone. If you are deliberately leaving someone out, seek legal advice.
+    </div>
+  </section>
+
+  <!-- WHEN TO SEE A SOLICITOR -->
+  <section class="section" id="solicitor">
+    <div class="section-label">👨‍⚖️ Professional Advice</div>
+    <h2>When You Should See a Solicitor</h2>
+    <p>This wizard is suitable for straightforward estates. The following situations involve complexity that warrants professional legal advice.</p>
+
+    <ul class="check-list">
+      <li><span class="ic">⚠️</span> <span><strong>Blended families</strong> — step-children, children from previous relationships, multiple spouses or de facto partners</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Business ownership</strong> — partnership interests, company shares, self-managed super funds, trust interests</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Significant assets</strong> — large or complex estates, investment portfolios, multiple properties</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>International assets</strong> — property or assets in another country may require a separate Will in that jurisdiction</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Testamentary trusts</strong> for complex situations — tax-effective trusts, special disability trusts</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Deliberately excluding a family member</strong> — family provision claims are common; a solicitor can advise on reducing risk</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Mental capacity concerns</strong> — if there is any question about the testator's capacity, a solicitor can formally assess and document it</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Mutual Wills</strong> — legally binding agreements between partners not to change their Wills</span></li>
+      <li><span class="ic">⚠️</span> <span><strong>Challenging an existing Will</strong> — if you believe a Will is invalid or you have been unfairly treated</span></li>
+    </ul>
+
+    <div class="alert alert-ok" style="margin-top:1.2rem">
+      <strong>✅ Even for simple estates — a review is worthwhile</strong>
+      A solicitor review of a Will generated by this tool typically costs $150–$400. For the certainty it provides, this is money well spent. Many community legal centres also offer free or low-cost Will advice.
+    </div>
+  </section>
+
+  <!-- FAQ -->
+  <section class="section" id="faq">
+    <div class="section-label">❓ FAQ</div>
+    <h2>Frequently Asked Questions</h2>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Does this Will work in all Australian states? <span class="toggle">+</span></div>
+      <div class="faq-a">The Will generated by this wizard is drafted to comply with common requirements across all Australian states and territories. It includes the core elements required everywhere: revocation of prior Wills, appointment of executor, beneficiary provisions, and a proper execution block. However, laws vary — particularly around family provision — and having the Will reviewed by a local solicitor is always recommended.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is the document I download legally valid? <span class="toggle">+</span></div>
+      <div class="faq-a">The downloaded Word document is a Will template based on your inputs. It becomes legally valid only once it is printed, signed by you in the presence of two eligible witnesses, and those witnesses also sign in your presence and each other's presence. A document that has not been correctly executed is not a valid Will.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I use this if I have a mortgage or debt? <span class="toggle">+</span></div>
+      <div class="faq-a">Yes. The Will instructs your executor to pay all debts and expenses before distributing your estate — this is standard. Your estate will include whatever equity you have in mortgaged property. Note that if property is held jointly (e.g., with a spouse), it typically passes to the surviving owner automatically regardless of your Will.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What happens to my superannuation? <span class="toggle">+</span></div>
+      <div class="faq-a">Superannuation is generally not part of your estate and is not governed by your Will. The trustee of your super fund has discretion over who receives your benefit unless you have lodged a valid Binding Death Benefit Nomination (BDBN) with your fund. Contact your super fund directly to update your nomination — this is separate to making a Will.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What if I change my mind after signing? <span class="toggle">+</span></div>
+      <div class="faq-a">You can revoke and replace your Will at any time while you have legal capacity. Simply make a new Will, which automatically revokes any prior Will. You can also make a formal amendment (called a codicil) to an existing Will — but for significant changes, making a new Will entirely is cleaner and avoids confusion.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">My partner and I did our Wills together — can we witness each other's? <span class="toggle">+</span></div>
+      <div class="faq-a">Generally no — if each partner is a beneficiary in the other's Will (which is the case in a standard mirror Will), they cannot witness the other's Will without risking the loss of their bequest. Use two independent witnesses for each Will — neighbours, friends, or work colleagues who receive nothing under either Will. Both Wills can be signed on the same day.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What is a testamentary trust and do I need one? <span class="toggle">+</span></div>
+      <div class="faq-a">A testamentary trust is a trust established by your Will that comes into effect when you die. It can be useful for protecting assets for minor beneficiaries (so they don't receive a large sum at 18), for tax planning, or for protecting assets from potential claims by beneficiaries' creditors or former spouses. For straightforward situations, a direct gift is fine. For significant estates or minor beneficiaries, a solicitor can advise whether a testamentary trust makes sense.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Where should I store my Will once signed? <span class="toggle">+</span></div>
+      <div class="faq-a">Options include: a fireproof safe at home, with your solicitor (most solicitors offer free Will storage for clients), or lodged with your state Supreme Court. Some states charge a small fee for court storage. The most important thing is that your executor knows exactly where the original is — a Will that cannot be found may be treated as if it doesn't exist.</div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Does this tool store my data? <span class="toggle">+</span></div>
+      <div class="faq-a">No. The Will Wizard runs entirely in your browser. No data is sent to any server. All information you enter exists only in your browser session and is gone when you close the tab. We never see, store, or transmit your personal details.</div>
+    </div>
+  </section>
+
+  <!-- DISCLAIMER -->
+  <section class="section" id="disclaimer">
+    <div class="section-label">§ Legal Disclaimer</div>
+    <h2>Disclaimer &amp; Limitations</h2>
+
+    <div class="big-disclaimer">
+      <h3>Important Legal Notice</h3>
+      <p>The Australian Will Wizard and this guide are provided for <strong>general informational and educational purposes only</strong>. They do not constitute legal advice, and no solicitor-client relationship is created by using these tools.</p>
+      <p>The Will document generated by this tool is a template based on the information you enter. Its suitability for your specific circumstances cannot be guaranteed. The law in each Australian state and territory differs, and individual circumstances — including family composition, asset type, tax position, and relationships — can significantly affect the validity and effectiveness of a Will.</p>
+      <p>We make no warranty, express or implied, that the document generated will be legally valid, enforceable, or appropriate for your needs. <strong>We strongly recommend having any Will generated by this tool reviewed by a qualified Australian solicitor before signing.</strong></p>
+      <p>This tool does not provide advice on superannuation, life insurance, enduring powers of attorney, advance health directives, or estate planning strategy. These matters should be addressed with appropriate professional advisers.</p>
+      <p>By using this tool you acknowledge that you have read this disclaimer and that you are using the tool at your own risk.</p>
+    </div>
+  </section>
+
+</main>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+
+  <div class="start-box">
+    <h3>Ready to start?</h3>
+    <p>Takes about 15 minutes for a straightforward estate.</p>
+    <a href="will-wizard.html">Open the Will Wizard →</a>
+  </div>
+
+  <div class="sidebar-card" style="margin-top:1.2rem">
+    <div class="sidebar-card-head">On this page</div>
+    <div class="sidebar-card-body">
+      <a href="#what-is">⚖️ What is a Will?</a>
+      <a href="#how-it-works">🧙 How the Wizard Works</a>
+      <a href="#couples">👫 Couples Wills</a>
+      <a href="#signing">✍️ Signing Correctly</a>
+      <a href="#state-rules">🗺️ State Rules</a>
+      <a href="#faq">❓ FAQ</a>
+      <a href="#disclaimer">§ Disclaimer</a>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <div class="sidebar-card-head">✅ Quick Checklist</div>
+    <div class="sidebar-card-body">
+      <ul class="check-list">
+        <li><span class="ic">☐</span> <span>Full legal names of executor &amp; substitute</span></li>
+        <li><span class="ic">☐</span> <span>Beneficiaries' full names &amp; addresses</span></li>
+        <li><span class="ic">☐</span> <span>Guardian details (if children under 18)</span></li>
+        <li><span class="ic">☐</span> <span>Two eligible, independent witnesses arranged</span></li>
+        <li><span class="ic">☐</span> <span>BDBN lodged with super fund (separately)</span></li>
+        <li><span class="ic">☐</span> <span>Storage location decided &amp; executor notified</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <div class="sidebar-card-head">⚠️ Witness Rules</div>
+    <div class="sidebar-card-body">
+      <p class="note">Witnesses must be:</p>
+      <ul class="check-list" style="margin-top:0.5rem">
+        <li><span class="ic">✅</span> <span>18 years or older</span></li>
+        <li><span class="ic">✅</span> <span>Of sound mind</span></li>
+        <li><span class="ic">✅</span> <span>Present together when you sign</span></li>
+        <li><span class="ic">❌</span> <span>NOT a beneficiary in the Will</span></li>
+        <li><span class="ic">❌</span> <span>NOT the spouse/partner of a beneficiary</span></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sidebar-card">
+    <div class="sidebar-card-head">🔄 Review Your Will When</div>
+    <div class="sidebar-card-body">
+      <ul class="check-list">
+        <li><span class="ic">•</span> <span>You marry or enter a de facto relationship</span></li>
+        <li><span class="ic">•</span> <span>You separate or divorce</span></li>
+        <li><span class="ic">•</span> <span>You have or adopt a child</span></li>
+        <li><span class="ic">•</span> <span>A beneficiary or executor dies</span></li>
+        <li><span class="ic">•</span> <span>You acquire significant assets</span></li>
+        <li><span class="ic">•</span> <span>Every 3–5 years regardless</span></li>
+      </ul>
+    </div>
+  </div>
+
+</aside>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⚖️ Australian Will Wizard</div>
+  <p>This tool is provided for educational purposes only and does not constitute legal advice.<br>
+  For complex estates, blended families, or significant assets, consult a qualified Australian solicitor.<br>
+  <a href="will-wizard.html">Open the Will Wizard</a> &nbsp;·&nbsp; <a href="#">Back to top ↑</a></p>
+</footer>
+
+<script>
+function toggleFaq(el) {
+  const item = el.closest('.faq-item');
+  const isOpen = item.classList.contains('open');
+  document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+  if (!isOpen) item.classList.add('open');
+}
+
+// Highlight active nav on scroll
+const sections = document.querySelectorAll('.section[id]');
+const navLinks = document.querySelectorAll('.nav-link[href^="#"]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      navLinks.forEach(l => l.style.color = '');
+      const active = document.querySelector(`.nav-link[href="#${e.target.id}"]`);
+      if (active) active.style.color = 'var(--gold)';
+    }
+  });
+}, { rootMargin: '-20% 0px -70% 0px' });
+sections.forEach(s => obs.observe(s));
+</script>
+</body>
+</html>

@@ -1,0 +1,912 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Australian Will Wizard</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/docx/8.5.0/docx.umd.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Source+Sans+3:wght@300;400;600&display=swap');
+
+  :root {
+    --navy: #1a2744;
+    --gold: #c9a84c;
+    --gold-light: #e8d5a0;
+    --cream: #f9f6f0;
+    --white: #ffffff;
+    --mid: #6b7280;
+    --border: #d6cfc4;
+    --step-done: #2e6b4f;
+    --p2: #3d2060;
+    --error: #8b2020;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Source Sans 3', sans-serif; background: var(--cream); color: var(--navy); min-height: 100vh; }
+
+  header { background: var(--navy); padding: 1.5rem 2rem; display: flex; align-items: center; gap: 1rem; border-bottom: 3px solid var(--gold); }
+  header .crest { font-size: 2rem; color: var(--gold); }
+  header h1 { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.6rem; font-weight: 600; }
+  header p { color: var(--gold-light); font-size: 0.85rem; margin-top: 0.15rem; }
+
+  .disclaimer { background: #fff8e1; border-left: 4px solid var(--gold); margin: 1.5rem auto; max-width: 900px; padding: 0.9rem 1.2rem; font-size: 0.82rem; color: #5a4a00; border-radius: 0 6px 6px 0; }
+  .disclaimer strong { color: #3d3000; }
+
+  /* MODE SELECTOR */
+  .mode-wrap { max-width: 900px; margin: 0 auto 1.5rem; padding: 0 1rem; }
+  .mode-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .mode-card { background: var(--white); border: 2.5px solid var(--border); border-radius: 12px; padding: 1.8rem; cursor: pointer; text-align: center; transition: all 0.2s; }
+  .mode-card:hover { border-color: var(--navy); box-shadow: 0 4px 16px rgba(26,39,68,0.1); }
+  .mode-card.selected { border-color: var(--navy); background: #f0f3fa; }
+  .mode-card .mode-icon { font-size: 2.5rem; margin-bottom: 0.6rem; }
+  .mode-card h3 { font-family: 'Playfair Display', serif; font-size: 1.2rem; color: var(--navy); margin-bottom: 0.3rem; }
+  .mode-card p { font-size: 0.83rem; color: var(--mid); }
+  .mode-start { display: none; margin-top: 1rem; text-align: center; }
+  .mode-start.visible { display: block; }
+
+  /* PARTNER TABS */
+  .partner-tabs-wrap { max-width: 900px; margin: 1rem auto 0; padding: 0 1rem; display: none; }
+  .partner-tabs-wrap.visible { display: block; }
+  .partner-tabs { display: flex; background: var(--white); border-radius: 10px 10px 0 0; overflow: hidden; box-shadow: 0 2px 8px rgba(26,39,68,0.06); }
+  .partner-tab { flex: 1; padding: 0.85rem 1rem; text-align: center; cursor: pointer; font-weight: 600; font-size: 0.9rem; border-bottom: 3px solid var(--border); color: var(--mid); transition: all 0.2s; }
+  .partner-tab.p1.active { border-bottom-color: var(--navy); color: var(--navy); background: #f0f3fa; }
+  .partner-tab.p2.active { border-bottom-color: var(--p2); color: var(--p2); background: #f5f0fa; }
+
+  /* PROGRESS */
+  .progress-wrap { max-width: 900px; margin: 0 auto 1.5rem; padding: 0 1rem; display: none; }
+  .progress-wrap.show { display: block; margin-top: 1rem; }
+  .steps { display: flex; position: relative; }
+  .steps::before { content: ''; position: absolute; top: 20px; left: 20px; right: 20px; height: 2px; background: var(--border); z-index: 0; }
+  .step-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; cursor: pointer; z-index: 1; }
+  .step-num { width: 40px; height: 40px; border-radius: 50%; background: var(--white); border: 2px solid var(--border); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; color: var(--mid); transition: all 0.3s; }
+  .step-item.active .step-num { background: var(--navy); border-color: var(--navy); color: var(--white); }
+  .step-item.done .step-num { background: var(--step-done); border-color: var(--step-done); color: var(--white); }
+  .step-label { font-size: 0.72rem; color: var(--mid); text-align: center; }
+  .step-item.active .step-label { color: var(--navy); font-weight: 600; }
+  .step-item.done .step-label { color: var(--step-done); }
+
+  /* CARD */
+  .card { max-width: 900px; margin: 0 auto 2rem; padding: 0 1rem; display: none; }
+  .card.show { display: block; }
+  .card-inner { background: var(--white); border-radius: 0 0 12px 12px; box-shadow: 0 4px 24px rgba(26,39,68,0.08); overflow: hidden; }
+  .card-inner.no-tabs { border-radius: 12px; }
+  .card-header { background: linear-gradient(135deg, var(--navy) 0%, #2a3a60 100%); padding: 1.5rem 2rem; border-bottom: 3px solid var(--gold); }
+  .card-header.p2h { background: linear-gradient(135deg, var(--p2) 0%, #5a3080 100%); border-bottom-color: #b89de8; }
+  .card-header h2 { font-family: 'Playfair Display', serif; color: var(--white); font-size: 1.4rem; }
+  .card-header p { color: var(--gold-light); font-size: 0.85rem; margin-top: 0.3rem; }
+  .card-header.p2h p { color: #d4c8f0; }
+  .card-body { padding: 2rem; }
+
+  /* MIRROR BANNER */
+  .mirror-banner { background: linear-gradient(135deg,#e8f4fd,#f0eafa); border: 1.5px solid #b8d8f0; border-radius: 8px; padding: 0.8rem 1.2rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: var(--navy); display: flex; align-items: center; gap: 0.6rem; }
+  .mirror-banner label { text-transform: none; letter-spacing: 0; font-weight: 400; color: var(--navy); margin: 0; display: flex; align-items: center; gap: 0.5rem; cursor: pointer; }
+  .mirror-banner input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--navy); }
+
+  /* FORM */
+  .field-group { margin-bottom: 1.4rem; }
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .field-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+  label { display: block; font-size: 0.82rem; font-weight: 600; color: var(--navy); margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  label .req { color: var(--gold); margin-left: 2px; }
+  input[type=text], input[type=date], select, textarea { width: 100%; padding: 0.7rem 0.9rem; border: 1.5px solid var(--border); border-radius: 6px; font-family: 'Source Sans 3', sans-serif; font-size: 0.95rem; color: var(--navy); background: var(--cream); transition: border-color 0.2s, box-shadow 0.2s; outline: none; }
+  input:focus, select:focus, textarea:focus { border-color: var(--navy); box-shadow: 0 0 0 3px rgba(26,39,68,0.1); background: var(--white); }
+  textarea { resize: vertical; min-height: 90px; }
+  select { cursor: pointer; }
+  .field-hint { font-size: 0.78rem; color: var(--mid); margin-top: 0.3rem; }
+  .section-title { font-family: 'Playfair Display', serif; font-size: 1.05rem; color: var(--navy); border-bottom: 2px solid var(--gold); padding-bottom: 0.4rem; margin: 1.8rem 0 1.2rem; }
+  .section-title:first-child { margin-top: 0; }
+
+  .person-block { background: var(--cream); border: 1.5px solid var(--border); border-radius: 8px; padding: 1.2rem; margin-bottom: 1rem; position: relative; }
+  .person-block .remove-btn { position: absolute; top: 0.8rem; right: 0.8rem; background: none; border: 1.5px solid #c9a8a8; color: var(--error); border-radius: 4px; padding: 0.2rem 0.6rem; cursor: pointer; font-size: 0.78rem; font-weight: 600; }
+  .person-block .remove-btn:hover { background: #fff0f0; }
+  .add-btn { display: inline-flex; align-items: center; gap: 0.4rem; background: none; border: 1.5px dashed var(--navy); color: var(--navy); border-radius: 6px; padding: 0.55rem 1.1rem; cursor: pointer; font-family: 'Source Sans 3',sans-serif; font-size: 0.9rem; font-weight: 600; transition: all 0.2s; margin-top: 0.5rem; }
+  .add-btn:hover { background: rgba(26,39,68,0.05); }
+
+  .radio-group { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 0.3rem; }
+  .radio-pill { position: relative; }
+  .radio-pill input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .radio-pill label { display: inline-flex; align-items: center; padding: 0.45rem 1rem; border: 1.5px solid var(--border); border-radius: 20px; cursor: pointer; font-size: 0.88rem; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--mid); background: var(--white); transition: all 0.2s; }
+  .radio-pill input:checked + label { border-color: var(--navy); background: var(--navy); color: var(--white); }
+  .check-item { display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-size: 0.9rem; }
+  .check-item input[type=checkbox] { width: 16px; height: 16px; cursor: pointer; accent-color: var(--navy); }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1.5px solid var(--border); }
+  .btn { padding: 0.75rem 2rem; border-radius: 6px; font-family: 'Source Sans 3',sans-serif; font-size: 0.95rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .btn-secondary { background: var(--white); border: 1.5px solid var(--border); color: var(--navy); }
+  .btn-secondary:hover { border-color: var(--navy); }
+  .btn-primary { background: var(--navy); color: var(--white); }
+  .btn-primary:hover { background: #243460; }
+
+  /* SUMMARY */
+  .couple-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.5rem; }
+  .sum-panel { border-radius: 8px; padding: 1.2rem; }
+  .sum-panel.sp1 { background: #f0f3fa; border: 1.5px solid #b8c8e8; }
+  .sum-panel.sp2 { background: #f5f0fa; border: 1.5px solid #c8b8e8; }
+  .sum-panel h3 { font-family: 'Playfair Display', serif; font-size: 0.95rem; margin-bottom: 0.8rem; padding-bottom: 0.4rem; border-bottom: 1.5px solid rgba(0,0,0,0.1); }
+  .sum-panel.sp1 h3 { color: var(--navy); }
+  .sum-panel.sp2 h3 { color: var(--p2); }
+  .summary-section { margin-bottom: 1.2rem; }
+  .summary-section h3 { font-family: 'Playfair Display', serif; font-size: 1rem; color: var(--navy); margin-bottom: 0.6rem; padding-bottom: 0.3rem; border-bottom: 1.5px solid var(--gold); }
+  .summary-row { display: flex; gap: 1rem; padding: 0.4rem 0; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-key { color: var(--mid); min-width: 140px; flex-shrink: 0; }
+  .summary-val { color: var(--navy); }
+  .warning-box { background: #fff8e1; border: 1.5px solid var(--gold); border-radius: 8px; padding: 1rem 1.2rem; margin-top: 1.5rem; font-size: 0.85rem; color: #5a4500; }
+  .warning-box strong { display: block; margin-bottom: 0.3rem; color: #3d3000; }
+
+  /* DOWNLOAD */
+  .dl-area { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .dl-btn { flex: 1; min-width: 180px; display: flex; flex-direction: column; align-items: center; gap: 0.25rem; padding: 1rem; border-radius: 8px; cursor: pointer; border: none; font-family: 'Source Sans 3',sans-serif; transition: all 0.2s; box-shadow: 0 4px 12px rgba(26,39,68,0.12); }
+  .dl-btn .dl-name { font-size: 0.95rem; font-weight: 700; }
+  .dl-btn .dl-sub { font-size: 0.78rem; opacity: 0.8; }
+  .dl-btn.d1 { background: var(--navy); color: var(--white); }
+  .dl-btn.d1:hover { background: #243460; transform: translateY(-1px); }
+  .dl-btn.d2 { background: var(--p2); color: var(--white); }
+  .dl-btn.d2:hover { background: #502880; transform: translateY(-1px); }
+  .dl-btn.dboth { background: var(--gold); color: var(--navy); }
+  .dl-btn.dboth:hover { background: #b8962f; transform: translateY(-1px); }
+
+  .tip-box { background: #f0f8ff; border: 1.5px solid #90c0e8; border-radius: 8px; padding: 0.8rem 1.2rem; margin-bottom: 1rem; font-size: 0.85rem; color: var(--navy); }
+  .cond-field { margin-top: 0.8rem; }
+  .hidden { display: none !important; }
+
+  @media (max-width: 640px) {
+    .field-row, .field-row-3, .mode-cards, .couple-cols { grid-template-columns: 1fr; }
+    .card-body { padding: 1.2rem; }
+    .step-label { display: none; }
+    header h1 { font-size: 1.2rem; }
+    .dl-area { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="crest">⚖️</div>
+  <div>
+    <h1>Australian Will Wizard</h1>
+    <p>Step-by-step Last Will &amp; Testament generator — Australian law</p>
+  </div>
+</header>
+
+<div class="disclaimer">
+  <strong>⚠️ Legal Disclaimer:</strong> This tool generates Will documents based on your inputs and does not constitute legal advice.
+  Laws vary between Australian states and territories. For complex estates, blended families, or significant assets, consult a qualified Australian solicitor.
+  A Will must be signed in the presence of two adult witnesses who are <strong>not</strong> beneficiaries to be valid.
+  In Couples mode, each partner's Will is a <strong>separate, independent legal document</strong>.
+</div>
+
+<!-- MODE SELECTOR -->
+<div id="mode_selector" class="mode-wrap">
+  <div class="mode-cards">
+    <div class="mode-card" id="mc_single" onclick="selectMode('single')">
+      <div class="mode-icon">👤</div>
+      <h3>Individual Will</h3>
+      <p>One person, one Will</p>
+    </div>
+    <div class="mode-card" id="mc_couple" onclick="selectMode('couple')">
+      <div class="mode-icon">👫</div>
+      <h3>Couples Wills</h3>
+      <p>Two partners, two mirror Wills — generates separate documents for each</p>
+    </div>
+  </div>
+  <div class="mode-start" id="mode_start_btn">
+    <button class="btn btn-primary" onclick="startWizard()">Begin →</button>
+  </div>
+</div>
+
+<!-- PARTNER TABS -->
+<div class="partner-tabs-wrap" id="tabs_wrap">
+  <div class="partner-tabs">
+    <div class="partner-tab p1 active" id="tab_p1" onclick="switchPartner(1)">👤 Partner 1</div>
+    <div class="partner-tab p2" id="tab_p2" onclick="switchPartner(2)">👤 Partner 2</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap" id="prog_wrap">
+  <div class="steps" id="steps">
+    <div class="step-item active" data-step="1"><div class="step-num">1</div><div class="step-label">Testator</div></div>
+    <div class="step-item" data-step="2"><div class="step-num">2</div><div class="step-label">Executor</div></div>
+    <div class="step-item" data-step="3"><div class="step-num">3</div><div class="step-label">Guardians</div></div>
+    <div class="step-item" data-step="4"><div class="step-num">4</div><div class="step-label">Beneficiaries</div></div>
+    <div class="step-item" data-step="5"><div class="step-num">5</div><div class="step-label">Estate</div></div>
+    <div class="step-item" data-step="6"><div class="step-num">6</div><div class="step-label">Review</div></div>
+  </div>
+</div>
+
+<!-- MAIN CARD -->
+<div class="card" id="main_card">
+  <div class="card-inner" id="card_inner">
+
+    <!-- STEP 1 -->
+    <div id="step1">
+      <div class="card-header" id="h1"><h2 id="h1t">Step 1 — About You (The Testator)</h2><p>The person making this Will</p></div>
+      <div class="card-body">
+        <div id="mb1" class="mirror-banner hidden"><span>💡</span><label><input type="checkbox" id="mir_addr" onchange="mirrorAddress()"> Copy Partner 1's address to Partner 2</label></div>
+        <div class="section-title">Personal Details</div>
+        <div class="field-row">
+          <div class="field-group"><label>Full Legal Name <span class="req">*</span></label><input type="text" id="t_name" placeholder="e.g. John William Smith"></div>
+          <div class="field-group"><label>Date of Birth <span class="req">*</span></label><input type="date" id="t_dob"></div>
+        </div>
+        <div class="field-group"><label>Also known as (aliases, maiden name)</label><input type="text" id="t_aka" placeholder="Leave blank if none"></div>
+        <div class="section-title">Address</div>
+        <div class="field-group"><label>Street Address <span class="req">*</span></label><input type="text" id="t_str" placeholder="e.g. 42 Acacia Avenue"></div>
+        <div class="field-row-3">
+          <div class="field-group"><label>Suburb <span class="req">*</span></label><input type="text" id="t_sub" placeholder="e.g. Toowoomba"></div>
+          <div class="field-group"><label>State <span class="req">*</span></label>
+            <select id="t_state"><option value="">Select...</option><option>QLD</option><option>NSW</option><option>VIC</option><option>WA</option><option>SA</option><option>TAS</option><option>ACT</option><option>NT</option></select></div>
+          <div class="field-group"><label>Postcode <span class="req">*</span></label><input type="text" id="t_post" placeholder="4350"></div>
+        </div>
+        <div class="section-title">Marital / Relationship Status</div>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="marital" id="m1" value="Single"><label for="m1">Single</label></div>
+          <div class="radio-pill"><input type="radio" name="marital" id="m2" value="Married"><label for="m2">Married</label></div>
+          <div class="radio-pill"><input type="radio" name="marital" id="m3" value="De Facto"><label for="m3">De Facto</label></div>
+          <div class="radio-pill"><input type="radio" name="marital" id="m4" value="Divorced"><label for="m4">Divorced</label></div>
+          <div class="radio-pill"><input type="radio" name="marital" id="m5" value="Widowed"><label for="m5">Widowed</label></div>
+          <div class="radio-pill"><input type="radio" name="marital" id="m6" value="Separated"><label for="m6">Separated</label></div>
+        </div>
+        <div class="field-hint" style="margin-top:0.6rem">⚠️ Getting married in Australia automatically revokes any previous Will unless the Will was made in contemplation of that marriage.</div>
+        <div class="nav-row"><div></div><button class="btn btn-primary" onclick="goStep(2)">Next: Executor →</button></div>
+      </div>
+    </div>
+
+    <!-- STEP 2 -->
+    <div id="step2" class="hidden">
+      <div class="card-header" id="h2"><h2>Step 2 — Executor(s)</h2><p>The person responsible for carrying out your wishes</p></div>
+      <div class="card-body">
+        <div id="mb2" class="mirror-banner hidden"><span>💡</span><label><input type="checkbox" id="mir_ex" onchange="mirrorExecutor()"> Use Partner 1's executor details as starting point</label></div>
+        <div class="field-hint" style="margin-bottom:1rem">Your executor administers your estate — pays debts, distributes assets. For couples, each partner typically appoints the other as primary executor.</div>
+        <div class="section-title">Primary Executor</div>
+        <div class="field-row">
+          <div class="field-group"><label>Full Name <span class="req">*</span></label><input type="text" id="ex_name" placeholder="e.g. Mary Jane Smith"></div>
+          <div class="field-group"><label>Relationship to You <span class="req">*</span></label><input type="text" id="ex_rel" placeholder="e.g. Spouse, De Facto Partner"></div>
+        </div>
+        <div class="field-group"><label>Address</label><input type="text" id="ex_addr" placeholder="e.g. 42 Acacia Avenue, Toowoomba QLD 4350"></div>
+        <div class="section-title">Substitute Executor (Recommended)</div>
+        <label class="check-item"><input type="checkbox" id="has_sub_ex" onchange="toggleDiv('sub_ex_f',this.checked)"> Appoint a substitute executor</label>
+        <div id="sub_ex_f" class="cond-field hidden">
+          <div class="field-row">
+            <div class="field-group"><label>Full Name</label><input type="text" id="sub_ex_name" placeholder="e.g. Robert David Jones"></div>
+            <div class="field-group"><label>Relationship</label><input type="text" id="sub_ex_rel" placeholder="e.g. Adult Child, Sibling"></div>
+          </div>
+          <div class="field-group"><label>Address</label><input type="text" id="sub_ex_addr"></div>
+        </div>
+        <div class="section-title">Executor Powers</div>
+        <div style="display:flex;flex-direction:column;gap:0.5rem;">
+          <label class="check-item"><input type="checkbox" id="pow_sell" checked> Power to sell, lease or mortgage real estate</label>
+          <label class="check-item"><input type="checkbox" id="pow_invest" checked> Power to invest estate funds</label>
+          <label class="check-item"><input type="checkbox" id="pow_biz" checked> Power to carry on any business forming part of the estate</label>
+          <label class="check-item"><input type="checkbox" id="pow_receipt" checked> Power to give receipts for money received</label>
+          <label class="check-item"><input type="checkbox" id="pow_legal" checked> Power to take or defend legal proceedings</label>
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(3)">Next: Guardians →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 3 -->
+    <div id="step3" class="hidden">
+      <div class="card-header" id="h3"><h2>Step 3 — Guardians for Minor Children</h2><p>If you have children under 18</p></div>
+      <div class="card-body">
+        <div id="mb3" class="mirror-banner hidden"><span>💡</span><label><input type="checkbox" id="mir_grd" onchange="mirrorGuardians()"> Copy Partner 1's guardian and children to Partner 2</label></div>
+        <label class="check-item" style="margin-bottom:1rem"><input type="checkbox" id="has_minors" onchange="toggleDiv('grd_f',this.checked)"> I have children under 18 years of age</label>
+        <div id="grd_f" class="hidden">
+          <div class="section-title">Primary Guardian</div>
+          <div class="field-hint" style="margin-bottom:0.8rem">This person will have care and custody of your minor children if both parents are deceased.</div>
+          <div class="field-row">
+            <div class="field-group"><label>Full Name <span class="req">*</span></label><input type="text" id="grd_name" placeholder="e.g. Patricia Anne Jones"></div>
+            <div class="field-group"><label>Relationship</label><input type="text" id="grd_rel" placeholder="e.g. Sister, Uncle"></div>
+          </div>
+          <div class="field-group"><label>Address</label><input type="text" id="grd_addr"></div>
+          <div class="section-title">Substitute Guardian</div>
+          <label class="check-item"><input type="checkbox" id="has_sub_grd" onchange="toggleDiv('sub_grd_f',this.checked)"> Appoint a substitute guardian</label>
+          <div id="sub_grd_f" class="cond-field hidden">
+            <div class="field-row">
+              <div class="field-group"><label>Full Name</label><input type="text" id="sub_grd_name"></div>
+              <div class="field-group"><label>Relationship</label><input type="text" id="sub_grd_rel"></div>
+            </div>
+            <div class="field-group"><label>Address</label><input type="text" id="sub_grd_addr"></div>
+          </div>
+          <div class="section-title">Children</div>
+          <div id="children_list"></div>
+          <button class="add-btn" onclick="addChild()">+ Add Child</button>
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(4)">Next: Beneficiaries →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 4 -->
+    <div id="step4" class="hidden">
+      <div class="card-header" id="h4"><h2>Step 4 — Beneficiaries</h2><p>Who receives your estate</p></div>
+      <div class="card-body">
+        <div id="mb4" class="mirror-banner hidden"><span>💡</span><label><input type="checkbox" id="mir_bene" onchange="mirrorBeneficiaries()"> Mirror Partner 1's beneficiary structure</label></div>
+        <div id="couple_tip" class="tip-box hidden"><strong>💑 Mirror Will Tip:</strong> Most couples leave their entire estate to their partner first, then equally to children if their partner predeceases them. Add your partner as the first beneficiary below.</div>
+        <div class="section-title">Residual Estate Beneficiaries</div>
+        <div class="field-hint" style="margin-bottom:0.8rem">These beneficiaries receive what remains after debts, expenses, and specific gifts. Shares should total 100%.</div>
+        <div id="bene_list"></div>
+        <button class="add-btn" onclick="addBeneficiary()">+ Add Beneficiary</button>
+        <div class="section-title" style="margin-top:2rem">Specific Gifts (Optional)</div>
+        <div class="field-hint" style="margin-bottom:0.8rem">Leave a named item or sum of money to a specific person or organisation.</div>
+        <div id="gifts_list"></div>
+        <button class="add-btn" onclick="addGift()">+ Add Specific Gift</button>
+        <div class="section-title" style="margin-top:2rem">If a Beneficiary Predeceases You</div>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="lapse" id="l1" value="share_equally" checked><label for="l1">Share equally among surviving beneficiaries</label></div>
+          <div class="radio-pill"><input type="radio" name="lapse" id="l2" value="pass_to_children"><label for="l2">Pass to that beneficiary's children (if any)</label></div>
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+          <button class="btn btn-primary" onclick="goStep(5)">Next: Estate Details →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 5 -->
+    <div id="step5" class="hidden">
+      <div class="card-header" id="h5"><h2>Step 5 — Estate &amp; Final Wishes</h2><p>Debts, funeral, and additional instructions</p></div>
+      <div class="card-body">
+        <div id="mb5" class="mirror-banner hidden"><span>💡</span><label><input type="checkbox" id="mir_est" onchange="mirrorEstate()"> Copy Partner 1's estate wishes to Partner 2</label></div>
+        <div class="section-title">Debts &amp; Expenses</div>
+        <div class="radio-group">
+          <div class="radio-pill"><input type="radio" name="debts" id="d1" value="pay_first" checked><label for="d1">Pay all debts and expenses before distribution</label></div>
+          <div class="radio-pill"><input type="radio" name="debts" id="d2" value="custom"><label for="d2">Custom instructions</label></div>
+        </div>
+        <div class="field-group" style="margin-top:0.8rem"><label>Custom Debt Instructions (if above)</label><textarea id="debt_custom" placeholder="e.g. The mortgage on the family home shall be paid by..."></textarea></div>
+        <div class="section-title">Funeral Wishes</div>
+        <div class="radio-group" style="margin-bottom:0.8rem">
+          <div class="radio-pill"><input type="radio" name="funeral" id="f1" value="burial"><label for="f1">Burial</label></div>
+          <div class="radio-pill"><input type="radio" name="funeral" id="f2" value="cremation"><label for="f2">Cremation</label></div>
+          <div class="radio-pill"><input type="radio" name="funeral" id="f3" value="no_preference"><label for="f3">No preference</label></div>
+          <div class="radio-pill"><input type="radio" name="funeral" id="f4" value="other"><label for="f4">Other</label></div>
+        </div>
+        <div class="field-group"><label>Additional Funeral Instructions</label><textarea id="funeral_inst" placeholder="e.g. I wish to be cremated and my ashes scattered at..."></textarea></div>
+        <div class="section-title">Pets</div>
+        <label class="check-item"><input type="checkbox" id="has_pets" onchange="toggleDiv('pets_f',this.checked)"> I have pets I wish to make provision for</label>
+        <div id="pets_f" class="cond-field hidden">
+          <div class="field-row" style="margin-top:0.8rem">
+            <div class="field-group"><label>Pet Care Person</label><input type="text" id="pet_carer" placeholder="Full name of pet carer"></div>
+            <div class="field-group"><label>Pet Care Fund (optional)</label><input type="text" id="pet_fund" placeholder="e.g. $5,000"></div>
+          </div>
+          <div class="field-group"><label>Pets Description</label><textarea id="pet_desc" placeholder="e.g. My labrador Biscuit..." style="min-height:60px"></textarea></div>
+        </div>
+        <div class="section-title">Digital Assets</div>
+        <label class="check-item"><input type="checkbox" id="has_digital" onchange="toggleDiv('digital_f',this.checked)"> Make provision for digital assets</label>
+        <div id="digital_f" class="cond-field hidden">
+          <div class="field-group" style="margin-top:0.8rem"><label>Digital Asset Instructions</label><textarea id="digital_inst" placeholder="e.g. My online accounts, cryptocurrency... Note: do not include passwords — Wills become public documents."></textarea></div>
+        </div>
+        <div class="section-title">Testamentary Trust</div>
+        <label class="check-item"><input type="checkbox" id="has_trust" onchange="toggleDiv('trust_f',this.checked)"> Establish a testamentary trust for minor beneficiaries</label>
+        <div id="trust_f" class="cond-field hidden">
+          <div class="field-hint" style="margin:0.8rem 0;">Assets held on trust will not be distributed to minor beneficiaries until they reach a specified age.</div>
+          <div class="field-row">
+            <div class="field-group"><label>Trustee Name</label><input type="text" id="trustee_name" placeholder="Usually same as Executor"></div>
+            <div class="field-group"><label>Distribution Age</label>
+              <select id="trust_age"><option value="18">18 years</option><option value="21">21 years</option><option value="25" selected>25 years</option><option value="30">30 years</option></select></div>
+          </div>
+        </div>
+        <div class="section-title">Additional Wishes</div>
+        <div class="field-group"><label>Any other instructions or wishes</label><textarea id="extra_wishes" placeholder="e.g. I wish my jewellery collection to be offered to family members before sale..."></textarea></div>
+        <div class="nav-row">
+          <button class="btn btn-secondary" onclick="goStep(4)">← Back</button>
+          <button class="btn btn-primary" onclick="step5Next()">Review →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- STEP 6 -->
+    <div id="step6" class="hidden">
+      <div class="card-header"><h2>Step 6 — Review &amp; Generate</h2><p>Check your details then download your Will(s)</p></div>
+      <div class="card-body">
+        <div id="summary_content"></div>
+        <div class="warning-box">
+          <strong>⚠️ Before generating:</strong>
+          Each Will must be signed by the respective testator in the presence of two adult witnesses who are NOT beneficiaries.
+          Both witnesses must sign in the testator's presence and in each other's presence at the same time.
+          In a Couples Will, each partner signs their own separate document — they cannot witness each other's Will if they are beneficiaries.
+          Keep originals safe and tell your executor where they are.
+        </div>
+        <div class="nav-row">
+          <button class="btn btn-secondary" onclick="goStep(5)">← Back</button>
+          <div class="dl-area" id="dl_area"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════
+// GLOBALS
+// ══════════════════════════════════════════════
+let MODE = null;       // 'single' | 'couple'
+let CP = 1;            // current partner: 1 | 2
+let STEP = 1;
+const SAVED = {1:{}, 2:{}};
+const PD = {
+  1:{children:[],beneficiaries:[],gifts:[],cc:0,bc:0,gc:0},
+  2:{children:[],beneficiaries:[],gifts:[],cc:0,bc:0,gc:0}
+};
+
+const FIELDS = ['t_name','t_dob','t_aka','t_str','t_sub','t_state','t_post',
+  'ex_name','ex_rel','ex_addr','sub_ex_name','sub_ex_rel','sub_ex_addr',
+  'grd_name','grd_rel','grd_addr','sub_grd_name','sub_grd_rel','sub_grd_addr',
+  'debt_custom','funeral_inst','pet_carer','pet_fund','pet_desc','digital_inst',
+  'trustee_name','trust_age','extra_wishes'];
+const CHECKS = ['has_sub_ex','pow_sell','pow_invest','pow_biz','pow_receipt','pow_legal',
+  'has_minors','has_sub_grd','has_pets','has_digital','has_trust'];
+const RADIOS = ['marital','debts','funeral','lapse'];
+
+// ══════════════════════════════════════════════
+// MODE SELECTION
+// ══════════════════════════════════════════════
+function selectMode(m) {
+  MODE = m;
+  document.getElementById('mc_single').classList.toggle('selected', m==='single');
+  document.getElementById('mc_couple').classList.toggle('selected', m==='couple');
+  document.getElementById('mode_start_btn').classList.add('visible');
+}
+
+function startWizard() {
+  if (!MODE) return;
+  document.getElementById('mode_selector').style.display = 'none';
+  document.getElementById('prog_wrap').classList.add('show');
+  document.getElementById('main_card').classList.add('show');
+  if (MODE === 'couple') {
+    document.getElementById('tabs_wrap').classList.add('visible');
+    document.getElementById('card_inner').classList.remove('no-tabs');
+  } else {
+    document.getElementById('card_inner').classList.add('no-tabs');
+  }
+  addBeneficiary();
+  applyCoupleUI();
+}
+
+// ══════════════════════════════════════════════
+// PARTNER SWITCHING
+// ══════════════════════════════════════════════
+function switchPartner(p) {
+  if (p === CP) return;
+  saveForm();
+  CP = p;
+  resetDynamicLists();
+  loadForm();
+  applyCoupleUI();
+  goStepRaw(1);
+}
+
+function applyCoupleUI() {
+  if (MODE !== 'couple') return;
+  const isP2 = CP === 2;
+  document.getElementById('tab_p1').classList.toggle('active', !isP2);
+  document.getElementById('tab_p2').classList.toggle('active', isP2);
+  // Colour headers
+  ['h1','h2','h3','h4','h5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('p2h', isP2);
+  });
+  // Mirror banners
+  ['mb1','mb2','mb3','mb4','mb5'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.toggle('hidden', !isP2);
+  });
+  // Partner tip on step4
+  const tip = document.getElementById('couple_tip');
+  if (tip) tip.classList.toggle('hidden', !isP2);
+  // Tab labels
+  const n1 = (SAVED[1]['t_name'] || 'Partner 1').split(' ')[0];
+  const n2 = (SAVED[2]['t_name'] || 'Partner 2').split(' ')[0];
+  document.getElementById('tab_p1').innerHTML = `👤 ${n1}`;
+  document.getElementById('tab_p2').innerHTML = `👤 ${n2}`;
+}
+
+// ══════════════════════════════════════════════
+// FORM SAVE / LOAD
+// ══════════════════════════════════════════════
+function saveForm() {
+  const s = SAVED[CP];
+  FIELDS.forEach(id => { const el=document.getElementById(id); if(el) s[id]=el.value; });
+  CHECKS.forEach(id => { const el=document.getElementById(id); if(el) s[id]=el.checked; });
+  RADIOS.forEach(n => { const el=document.querySelector(`input[name="${n}"]:checked`); s['r_'+n]=el?el.value:''; });
+  // Snapshot dynamic lists from DOM
+  const pd = PD[CP];
+  pd.children = []; pd.beneficiaries = []; pd.gifts = [];
+  for (let i=1;i<=pd.cc;i++) {
+    if (document.getElementById('child_'+i)) pd.children.push({name:gv('child_name_'+i), dob:gv('child_dob_'+i)});
+  }
+  for (let i=1;i<=pd.bc;i++) {
+    if (document.getElementById('bene_'+i)) pd.beneficiaries.push({name:gv('bene_name_'+i),rel:gv('bene_rel_'+i),share:gv('bene_share_'+i),addr:gv('bene_addr_'+i)});
+  }
+  for (let i=1;i<=pd.gc;i++) {
+    if (document.getElementById('gift_'+i)) pd.gifts.push({to:gv('gift_to_'+i),item:gv('gift_item_'+i),cond:gv('gift_cond_'+i)});
+  }
+  s._pd = JSON.parse(JSON.stringify(pd));
+}
+
+function resetDynamicLists() {
+  document.getElementById('children_list').innerHTML='';
+  document.getElementById('bene_list').innerHTML='';
+  document.getElementById('gifts_list').innerHTML='';
+  const pd = PD[CP]; pd.cc=0; pd.bc=0; pd.gc=0; pd.children=[]; pd.beneficiaries=[]; pd.gifts=[];
+}
+
+function loadForm() {
+  const s = SAVED[CP];
+  if (!Object.keys(s).length) { addBeneficiary(); return; }
+  FIELDS.forEach(id => { const el=document.getElementById(id); if(el) el.value=s[id]||''; });
+  CHECKS.forEach(id => {
+    const el=document.getElementById(id); if(!el) return; el.checked=!!s[id];
+    if(id==='has_sub_ex') toggleDiv('sub_ex_f',el.checked);
+    if(id==='has_minors') toggleDiv('grd_f',el.checked);
+    if(id==='has_sub_grd') toggleDiv('sub_grd_f',el.checked);
+    if(id==='has_pets') toggleDiv('pets_f',el.checked);
+    if(id==='has_digital') toggleDiv('digital_f',el.checked);
+    if(id==='has_trust') toggleDiv('trust_f',el.checked);
+  });
+  RADIOS.forEach(n => {
+    const v=s['r_'+n]; if(!v) return;
+    const el=document.querySelector(`input[name="${n}"][value="${v}"]`); if(el) el.checked=true;
+  });
+  const pd = s._pd;
+  if (pd) {
+    PD[CP].cc=0; PD[CP].bc=0; PD[CP].gc=0;
+    (pd.children||[]).forEach(c=>addChild(c));
+    if ((pd.beneficiaries||[]).length) pd.beneficiaries.forEach(b=>addBeneficiary(b));
+    else addBeneficiary();
+    (pd.gifts||[]).forEach(g=>addGift(g));
+  } else { addBeneficiary(); }
+}
+
+// ══════════════════════════════════════════════
+// MIRROR FUNCTIONS
+// ══════════════════════════════════════════════
+function mirrorAddress() {
+  if (!document.getElementById('mir_addr').checked) return;
+  const s=SAVED[1];
+  ['t_str','t_sub','t_state','t_post'].forEach(id=>{const el=document.getElementById(id);if(el&&s[id])el.value=s[id];});
+}
+function mirrorExecutor() {
+  if (!document.getElementById('mir_ex').checked) return;
+  const s=SAVED[1];
+  ['ex_name','ex_rel','ex_addr','sub_ex_name','sub_ex_rel','sub_ex_addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=s[id]||'';});
+  ['has_sub_ex','pow_sell','pow_invest','pow_biz','pow_receipt','pow_legal'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!!s[id];});
+  toggleDiv('sub_ex_f',document.getElementById('has_sub_ex').checked);
+}
+function mirrorGuardians() {
+  if (!document.getElementById('mir_grd').checked) return;
+  const s=SAVED[1];
+  const hm=!!s['has_minors']; document.getElementById('has_minors').checked=hm; toggleDiv('grd_f',hm);
+  ['grd_name','grd_rel','grd_addr','sub_grd_name','sub_grd_rel','sub_grd_addr'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=s[id]||'';});
+  ['has_sub_grd'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!!s[id];});
+  toggleDiv('sub_grd_f',document.getElementById('has_sub_grd').checked);
+  document.getElementById('children_list').innerHTML=''; PD[CP].cc=0; PD[CP].children=[];
+  if(s._pd&&s._pd.children) s._pd.children.forEach(c=>addChild(c));
+}
+function mirrorBeneficiaries() {
+  if (!document.getElementById('mir_bene').checked) return;
+  const s=SAVED[1];
+  document.getElementById('bene_list').innerHTML=''; PD[CP].bc=0; PD[CP].beneficiaries=[];
+  document.getElementById('gifts_list').innerHTML=''; PD[CP].gc=0; PD[CP].gifts=[];
+  if(s._pd&&s._pd.beneficiaries&&s._pd.beneficiaries.length) s._pd.beneficiaries.forEach(b=>addBeneficiary(b));
+  else addBeneficiary();
+  if(s._pd&&s._pd.gifts) s._pd.gifts.forEach(g=>addGift(g));
+  const lv=s['r_lapse']; if(lv){const el=document.querySelector(`input[name="lapse"][value="${lv}"]`);if(el)el.checked=true;}
+}
+function mirrorEstate() {
+  if (!document.getElementById('mir_est').checked) return;
+  const s=SAVED[1];
+  ['debt_custom','funeral_inst','pet_carer','pet_fund','pet_desc','digital_inst','trustee_name','trust_age','extra_wishes'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=s[id]||'';});
+  ['has_pets','has_digital','has_trust'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=!!s[id];});
+  toggleDiv('pets_f',document.getElementById('has_pets').checked);
+  toggleDiv('digital_f',document.getElementById('has_digital').checked);
+  toggleDiv('trust_f',document.getElementById('has_trust').checked);
+  ['debts','funeral'].forEach(n=>{const v=s['r_'+n];if(v){const el=document.querySelector(`input[name="${n}"][value="${v}"]`);if(el)el.checked=true;}});
+}
+
+// ══════════════════════════════════════════════
+// NAVIGATION
+// ══════════════════════════════════════════════
+function goStepRaw(n) {
+  document.getElementById('step'+STEP).classList.add('hidden');
+  STEP=n;
+  document.getElementById('step'+n).classList.remove('hidden');
+  document.querySelectorAll('.step-item').forEach(el=>{
+    const s=parseInt(el.dataset.step); el.classList.remove('active','done');
+    if(s<STEP) el.classList.add('done');
+    if(s===STEP) el.classList.add('active');
+  });
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function goStep(n) { saveForm(); goStepRaw(n); applyCoupleUI(); if(n===6) buildSummary(); }
+function step5Next() {
+  saveForm();
+  if (MODE==='couple' && CP===1) {
+    const p2Empty = !SAVED[2]['t_name'];
+    if (p2Empty) {
+      const go = confirm("Partner 1's details saved.\n\nSwitch to Partner 2 now to enter their details?\n\nOK = Enter Partner 2 details\nCancel = Go straight to Review");
+      if (go) { switchPartner(2); return; }
+    }
+  }
+  goStepRaw(6); applyCoupleUI(); buildSummary();
+}
+function toggleDiv(id,show) { const el=document.getElementById(id); if(el){if(show)el.classList.remove('hidden');else el.classList.add('hidden');} }
+
+// ══════════════════════════════════════════════
+// DYNAMIC LISTS
+// ══════════════════════════════════════════════
+function addChild(data) {
+  const pd=PD[CP]; const id=++pd.cc;
+  const div=document.createElement('div'); div.className='person-block'; div.id='child_'+id;
+  div.innerHTML=`<button class="remove-btn" onclick="removeEl('child_${id}')">✕ Remove</button>
+    <div class="field-row">
+      <div class="field-group"><label>Child's Full Name</label><input type="text" id="child_name_${id}" placeholder="Full legal name" value="${esc(data&&data.name)}"></div>
+      <div class="field-group"><label>Date of Birth</label><input type="date" id="child_dob_${id}" value="${esc(data&&data.dob)}"></div>
+    </div>`;
+  document.getElementById('children_list').appendChild(div);
+}
+function addBeneficiary(data) {
+  const pd=PD[CP]; const id=++pd.bc;
+  const div=document.createElement('div'); div.className='person-block'; div.id='bene_'+id;
+  div.innerHTML=`<button class="remove-btn" onclick="removeEl('bene_${id}')">✕ Remove</button>
+    <div class="field-row">
+      <div class="field-group"><label>Full Name / Organisation</label><input type="text" id="bene_name_${id}" placeholder="e.g. Mary Jane Smith" value="${esc(data&&data.name)}"></div>
+      <div class="field-group"><label>Relationship</label><input type="text" id="bene_rel_${id}" placeholder="e.g. Spouse, Daughter, Charity" value="${esc(data&&data.rel)}"></div>
+    </div>
+    <div class="field-row">
+      <div class="field-group"><label>Share of Residual Estate</label><input type="text" id="bene_share_${id}" placeholder="e.g. 100% or Equal share" value="${esc(data&&data.share)}"></div>
+      <div class="field-group"><label>Address (optional)</label><input type="text" id="bene_addr_${id}" placeholder="" value="${esc(data&&data.addr)}"></div>
+    </div>`;
+  document.getElementById('bene_list').appendChild(div);
+}
+function addGift(data) {
+  const pd=PD[CP]; const id=++pd.gc;
+  const div=document.createElement('div'); div.className='person-block'; div.id='gift_'+id;
+  div.innerHTML=`<button class="remove-btn" onclick="removeEl('gift_${id}')">✕ Remove</button>
+    <div class="field-row">
+      <div class="field-group"><label>Recipient Name</label><input type="text" id="gift_to_${id}" placeholder="e.g. Robert David Jones" value="${esc(data&&data.to)}"></div>
+      <div class="field-group"><label>Description of Gift</label><input type="text" id="gift_item_${id}" placeholder="e.g. My 1964 Ford Mustang / $10,000 cash" value="${esc(data&&data.item)}"></div>
+    </div>
+    <div class="field-group"><label>Conditions (optional)</label><input type="text" id="gift_cond_${id}" placeholder="e.g. Provided they survive me by 30 days" value="${esc(data&&data.cond)}"></div>`;
+  document.getElementById('gifts_list').appendChild(div);
+}
+function removeEl(id) { const el=document.getElementById(id); if(el)el.remove(); }
+function esc(v) { return v ? String(v).replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
+function gv(id) { const el=document.getElementById(id); return el?el.value.trim():''; }
+
+// ══════════════════════════════════════════════
+// COLLECT DATA FROM SAVED
+// ══════════════════════════════════════════════
+function collectSaved(p) {
+  if (p===CP) saveForm();
+  const s=SAVED[p];
+  if (!s||!s['t_name']) return null;
+  const gvs=id=>s[id]||'';
+  const gcs=id=>!!s[id];
+  const grs=n=>s['r_'+n]||'';
+  const pd=s._pd||{children:[],beneficiaries:[],gifts:[]};
+  return {
+    testator:{name:gvs('t_name'),dob:gvs('t_dob'),aka:gvs('t_aka'),street:gvs('t_str'),suburb:gvs('t_sub'),state:gvs('t_state'),post:gvs('t_post'),marital:grs('marital')},
+    executor:{name:gvs('ex_name'),rel:gvs('ex_rel'),addr:gvs('ex_addr'),hasSub:gcs('has_sub_ex'),subName:gvs('sub_ex_name'),subRel:gvs('sub_ex_rel'),subAddr:gvs('sub_ex_addr'),
+      powers:{sell:gcs('pow_sell'),invest:gcs('pow_invest'),biz:gcs('pow_biz'),receipt:gcs('pow_receipt'),legal:gcs('pow_legal')}},
+    guardians:{hasMinors:gcs('has_minors'),name:gvs('grd_name'),rel:gvs('grd_rel'),addr:gvs('grd_addr'),hasSub:gcs('has_sub_grd'),subName:gvs('sub_grd_name'),subRel:gvs('sub_grd_rel'),subAddr:gvs('sub_grd_addr'),children:pd.children||[]},
+    beneficiaries:pd.beneficiaries||[],
+    gifts:pd.gifts||[],
+    lapse:grs('lapse'),
+    estate:{debts:grs('debts'),debtCustom:gvs('debt_custom'),funeral:grs('funeral'),funeralInst:gvs('funeral_inst'),
+      hasPets:gcs('has_pets'),petCarer:gvs('pet_carer'),petFund:gvs('pet_fund'),petDesc:gvs('pet_desc'),
+      hasDigital:gcs('has_digital'),digitalInst:gvs('digital_inst'),
+      hasTrust:gcs('has_trust'),trusteeName:gvs('trustee_name'),trustAge:gvs('trust_age'),
+      extraWishes:gvs('extra_wishes')}
+  };
+}
+
+// ══════════════════════════════════════════════
+// SUMMARY
+// ══════════════════════════════════════════════
+function buildSummary() {
+  saveForm();
+  let html='';
+  const dlArea=document.getElementById('dl_area');
+  dlArea.innerHTML='';
+
+  if (MODE==='couple') {
+    const d1=collectSaved(1), d2=collectSaved(2);
+    html+=`<div class="couple-cols">`;
+    html+=`<div class="sum-panel sp1"><h3>👤 ${d1?d1.testator.name||'Partner 1':'Partner 1 — not entered'}</h3>${d1?partnerRows(d1):'<p style="color:var(--mid);font-size:0.85rem">No data entered</p>'}</div>`;
+    html+=`<div class="sum-panel sp2"><h3>👤 ${d2?d2.testator.name||'Partner 2':'Partner 2 — not entered'}</h3>${d2?partnerRows(d2):'<p style="color:var(--mid);font-size:0.85rem">Click Partner 2 tab to enter details</p>'}</div>`;
+    html+=`</div>`;
+    if (d1){const b=document.createElement('button');b.className='dl-btn d1';b.innerHTML=`<span>⬇</span><span class="dl-name">${d1.testator.name.split(' ')[0]}'s Will</span><span class="dl-sub">Download .docx</span>`;b.onclick=()=>generateDocx(1);dlArea.appendChild(b);}
+    if (d2){const b=document.createElement('button');b.className='dl-btn d2';b.innerHTML=`<span>⬇</span><span class="dl-name">${d2.testator.name.split(' ')[0]}'s Will</span><span class="dl-sub">Download .docx</span>`;b.onclick=()=>generateDocx(2);dlArea.appendChild(b);}
+    if (d1&&d2){const b=document.createElement('button');b.className='dl-btn dboth';b.innerHTML=`<span>⬇⬇</span><span class="dl-name">Download Both</span><span class="dl-sub">Two separate .docx files</span>`;b.onclick=()=>{generateDocx(1);setTimeout(()=>generateDocx(2),700);};dlArea.appendChild(b);}
+  } else {
+    const d=collectSaved(1);
+    if (d) html+=fullSummary(d);
+    const b=document.createElement('button');b.className='dl-btn d1';b.innerHTML=`<span>⬇</span><span class="dl-name">Download Will (.docx)</span>`;b.onclick=()=>generateDocx(1);dlArea.appendChild(b);
+  }
+  document.getElementById('summary_content').innerHTML=html;
+}
+
+function partnerRows(d) {
+  let h='';
+  h+=sr('Name',d.testator.name||'—');
+  h+=sr('Executor',d.executor.name||'—');
+  if(d.guardians.hasMinors) h+=sr('Guardian',d.guardians.name||'—');
+  if(d.beneficiaries.length) h+=sr('Beneficiaries',d.beneficiaries.map(b=>`${b.name} (${b.share})`).join(', '));
+  else h+=sr('Beneficiaries','⚠️ None added');
+  h+=sr('Funeral',d.estate.funeral||'—');
+  return h;
+}
+function fullSummary(d) {
+  const t=d.testator,e=d.executor,g=d.guardians,es=d.estate;
+  let h='';
+  h+=`<div class="summary-section"><h3>Testator</h3>${sr('Name',t.name||'—')}${sr('DOB',fd(t.dob))}${t.aka?sr('AKA',t.aka):''}${sr('Address',[t.street,t.suburb,t.state,t.post].filter(Boolean).join(', ')||'—')}${sr('Marital',t.marital||'—')}</div>`;
+  h+=`<div class="summary-section"><h3>Executor</h3>${sr('Primary',e.name||'—')}${sr('Relationship',e.rel||'—')}${e.hasSub&&e.subName?sr('Substitute',e.subName):''}</div>`;
+  if(g.hasMinors) h+=`<div class="summary-section"><h3>Guardian</h3>${sr('Primary',g.name||'—')}${g.hasSub&&g.subName?sr('Substitute',g.subName):''}${g.children.length?sr('Children',g.children.map(c=>c.name).join(', ')):''}`;
+  h+=`<div class="summary-section"><h3>Beneficiaries</h3>`;
+  if(d.beneficiaries.length) d.beneficiaries.forEach(b=>{h+=sr(b.name||'Unnamed',`${b.share||'—'} (${b.rel||'—'})`);});
+  else h+=`<div class="summary-row"><div class="summary-val" style="color:var(--error)">⚠️ None added</div></div>`;
+  h+=`</div>`;
+  if(d.gifts.length){h+=`<div class="summary-section"><h3>Specific Gifts</h3>`;d.gifts.forEach(g=>{h+=sr(g.to||'—',g.item||'—');});h+=`</div>`;}
+  h+=`<div class="summary-section"><h3>Estate</h3>${sr('Funeral',es.funeral||'—')}${es.hasTrust?sr('Trust',`Yes — age ${es.trustAge}`):''}${es.hasPets?sr('Pet Carer',es.petCarer||'—'):''}</div>`;
+  return h;
+}
+function sr(k,v){return `<div class="summary-row"><div class="summary-key">${k}</div><div class="summary-val">${v}</div></div>`;}
+function fd(ds){if(!ds)return '—';const d=new Date(ds+'T00:00:00');return d.toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});}
+
+// ══════════════════════════════════════════════
+// DOCX GENERATION
+// ══════════════════════════════════════════════
+function generateDocx(pNum) {
+  const d=collectSaved(pNum);
+  if(!d){alert(`No data for Partner ${pNum}.`);return;}
+  if(!d.testator.name){alert('Enter full legal name.');return;}
+  if(!d.executor.name){alert('Enter an executor name.');return;}
+  if(!d.beneficiaries.length||!d.beneficiaries[0].name){alert('Add at least one beneficiary.');return;}
+
+  const {Document,Packer,Paragraph,TextRun,AlignmentType,HeadingLevel,BorderStyle}=docx;
+  const today=new Date();
+  const todayStr=today.toLocaleDateString('en-AU',{day:'numeric',month:'long',year:'numeric'});
+  const t=d.testator,e=d.executor,g=d.guardians,es=d.estate;
+  const addr=[t.street,t.suburb,t.state,t.post].filter(Boolean).join(', ');
+
+  const H1=text=>new Paragraph({children:[new TextRun({text,bold:true,size:28,font:'Times New Roman'})],heading:HeadingLevel.HEADING_1,alignment:AlignmentType.CENTER,spacing:{before:360,after:200},border:{bottom:{style:BorderStyle.SINGLE,size:6,color:'1a2744',space:4}}});
+  const H2=text=>new Paragraph({children:[new TextRun({text:text.toUpperCase(),bold:true,size:24,font:'Times New Roman',color:'1a2744'})],spacing:{before:280,after:120}});
+  const P=(text,opts={})=>new Paragraph({children:[new TextRun({text,size:22,font:'Times New Roman',...opts})],spacing:{before:80,after:80},alignment:opts.center?AlignmentType.CENTER:AlignmentType.JUSTIFIED});
+  const PB=text=>new Paragraph({children:[new TextRun({text,size:22,font:'Times New Roman',bold:true})],spacing:{before:80,after:80}});
+  const BLK=()=>new Paragraph({children:[new TextRun({text:'',size:22})],spacing:{before:60,after:60}});
+  const SL=label=>[
+    new Paragraph({children:[new TextRun({text:'_'.repeat(55),size:22,font:'Times New Roman'})],spacing:{before:280,after:40}}),
+    new Paragraph({children:[new TextRun({text:label,size:20,font:'Times New Roman',italics:true})],spacing:{before:0,after:80}})
+  ];
+
+  const pows=[];
+  if(e.powers.sell)pows.push('sell, lease or mortgage real property');
+  if(e.powers.invest)pows.push('invest estate funds');
+  if(e.powers.biz)pows.push('carry on any business forming part of the estate');
+  if(e.powers.receipt)pows.push('give receipts for money received');
+  if(e.powers.legal)pows.push('take or defend legal proceedings');
+
+  const lapseText=d.lapse==='pass_to_children'
+    ?"If any residual beneficiary predeceases me leaving children who survive me, that beneficiary's share shall pass to their children in equal shares absolutely. If a beneficiary predeceases me leaving no children, their share shall be divided equally among the remaining surviving beneficiaries."
+    :"If any residual beneficiary predeceases me, their share shall be divided equally among the remaining surviving residual beneficiaries.";
+
+  let cn=3;
+  const nc=()=>++cn;
+
+  let funeralText='';
+  if(es.funeral==='burial')funeralText='I request that my remains be disposed of by burial.';
+  else if(es.funeral==='cremation')funeralText='I request that my remains be disposed of by cremation.';
+  else if(es.funeral==='no_preference')funeralText='I express no preference as to the disposal of my remains and leave this to the discretion of my Executor.';
+  if(es.funeralInst)funeralText+=' '+es.funeralInst;
+
+  const giftParas=d.gifts.length?[H2(`CLAUSE ${nc()} — SPECIFIC GIFTS`),P('I give, bequeath and devise the following specific gifts free from all duties and taxes:'),...d.gifts.map((gf,i)=>P(`${i+1}. To ${gf.to||'[Recipient]'}: ${gf.item||'[Item]'}${gf.cond?' — '+gf.cond:''}.`))]:[];
+  const grdParas=g.hasMinors?[H2(`CLAUSE ${nc()} — GUARDIAN OF MINOR CHILDREN`),P(`If my minor children have no surviving parent at the time of my death, I appoint ${g.name||'[Guardian Name]'}${g.rel?' ('+g.rel+')':''}${g.addr?' of '+g.addr:''} as guardian of the person of my minor children.`),...(g.hasSub&&g.subName?[P(`If ${g.name||'[Guardian Name]'} is unable or unwilling to act, I appoint ${g.subName}${g.subRel?' ('+g.subRel+')':''}${g.subAddr?' of '+g.subAddr:''} as substitute guardian.`)]:[]),...(g.children.length?[P('My minor children are:'),...g.children.map(c=>P(`\u2022 ${c.name||'[Child Name]'}${c.dob?', born '+fd(c.dob):''}`))]:[])]:[];
+  const trustParas=es.hasTrust?[H2(`CLAUSE ${nc()} — TESTAMENTARY TRUST`),P(`I direct that any share of my estate passing to a beneficiary who is under ${es.trustAge||'25'} years of age at the date of my death shall be held by my Trustee${es.trusteeName?' ('+es.trusteeName+')':''} on trust until that beneficiary attains the age of ${es.trustAge||'25'} years. Until that time the Trustee may apply so much of the income and capital of the trust as the Trustee considers appropriate for the maintenance, education, advancement and benefit of that beneficiary.`)]:[];
+  const petParas=es.hasPets&&es.petCarer?[H2(`CLAUSE ${nc()} — PETS`),P(`I give and bequeath my pets${es.petDesc?' ('+es.petDesc+')':''} to ${es.petCarer} and request that they provide good care for them.${es.petFund?' I direct that the sum of '+es.petFund+' be paid from my estate to '+es.petCarer+' for the purpose of meeting the costs of care of my pets.':''}`)]:[];
+  const digParas=es.hasDigital&&es.digitalInst?[H2(`CLAUSE ${nc()} — DIGITAL ASSETS`),P(es.digitalInst)]:[];
+  const extraParas=es.extraWishes?[H2(`CLAUSE ${nc()} — ADDITIONAL WISHES`),P(es.extraWishes)]:[];
+  const resClause=nc();
+
+  const body=[
+    new Paragraph({children:[new TextRun({text:'LAST WILL AND TESTAMENT',bold:true,size:40,font:'Times New Roman',color:'1a2744'})],alignment:AlignmentType.CENTER,spacing:{before:480,after:240}}),
+    new Paragraph({children:[new TextRun({text:'OF',size:28,font:'Times New Roman',color:'6b7280'})],alignment:AlignmentType.CENTER,spacing:{before:0,after:240}}),
+    new Paragraph({children:[new TextRun({text:t.name.toUpperCase(),bold:true,size:32,font:'Times New Roman'})],alignment:AlignmentType.CENTER,spacing:{before:0,after:120}}),
+    new Paragraph({children:[new TextRun({text:addr,size:22,font:'Times New Roman',italics:true,color:'6b7280'})],alignment:AlignmentType.CENTER,spacing:{before:0,after:480}}),
+    new Paragraph({children:[new TextRun({text:`Executed: ${todayStr}`,size:22,font:'Times New Roman',color:'6b7280'})],alignment:AlignmentType.CENTER,spacing:{before:0,after:960}}),
+    BLK(),BLK(),
+
+    H1('LAST WILL AND TESTAMENT'),BLK(),
+    P(`I, ${t.name}${t.aka?' also known as '+t.aka:''}, of ${addr}, born ${fd(t.dob)}, being of sound mind and testamentary capacity, hereby declare this to be my Last Will and Testament, and I revoke all prior Wills and codicils previously made by me.`),
+    BLK(),
+
+    H2('CLAUSE 1 — APPOINTMENT OF EXECUTOR'),
+    P(`I appoint ${e.name}${e.rel?' ('+e.rel+')':''}${e.addr?' of '+e.addr:''} as the Executor and Trustee of my estate ("my Executor").`),
+    ...(e.hasSub&&e.subName?[P(`If ${e.name} is unable or unwilling to act or to continue acting as Executor, I appoint ${e.subName}${e.subRel?' ('+e.subRel+')':''}${e.subAddr?' of '+e.subAddr:''} as Substitute Executor.`)]:[]),
+    ...(pows.length?[P('I grant my Executor the following powers, in addition to those conferred by law:'),...pows.map(pw=>P(`\u2022 Power to ${pw}.`))]:[]),
+
+    H2('CLAUSE 2 — PAYMENT OF DEBTS AND EXPENSES'),
+    P(es.debts==='custom'&&es.debtCustom?es.debtCustom:'I direct my Executor to pay all my just debts, funeral and testamentary expenses, and all estate administration charges as soon as practicable after my death from the assets of my estate.'),
+
+    ...(funeralText?[H2('CLAUSE 3 — FUNERAL AND BURIAL WISHES'),P(funeralText)]:[]),
+    ...grdParas,...giftParas,
+
+    H2(`CLAUSE ${resClause} — RESIDUAL ESTATE`),
+    P('I give, bequeath and devise the whole of my estate, both real and personal, of whatever nature and wheresoever situated ("my Estate") to the following beneficiaries in the shares set out below:'),
+    BLK(),
+    ...d.beneficiaries.map((b,i)=>P(`${i+1}. ${b.name}${b.rel?' ('+b.rel+')':''}${b.share?' — '+b.share:''}${b.addr?' of '+b.addr:''}`)),
+    BLK(),P(lapseText),
+    ...trustParas,...petParas,...digParas,...extraParas,
+
+    H2('GENERAL PROVISIONS'),
+    P('References to "my estate" include all property to which I am entitled and all property which I am able to dispose of at my death. Where the context requires, words importing one gender include all genders, and words in the singular include the plural and vice versa.'),
+    P('This Will shall be construed and take effect in accordance with the laws of '+(t.state||'Australia')+'.'),
+    BLK(),
+
+    new Paragraph({children:[new TextRun({text:'IN WITNESS WHEREOF',bold:true,size:22,font:'Times New Roman'})],spacing:{before:320,after:80}}),
+    P(`I, ${t.name}, declare this to be my Last Will and Testament, consisting of this and the preceding pages, and I sign my name to this Will on this ${todayStr} in the presence of the witnesses named below who have also subscribed their names as witnesses in my presence and in the presence of each other.`),
+    BLK(),BLK(),
+
+    PB('SIGNED by the Testator:'),...SL(`${t.name} (Testator)`),
+    new Paragraph({children:[new TextRun({text:'Date: ___________________________',size:22,font:'Times New Roman'})],spacing:{before:80,after:240}}),
+
+    PB('SIGNED by Witness 1 in the presence of the Testator:'),
+    P('(This witness must NOT be a beneficiary or spouse of a beneficiary)',{italics:true}),...SL('Witness 1 — Signature'),
+    P('Full Name: ___________________________________'),P('Address: ___________________________________'),
+    new Paragraph({children:[new TextRun({text:'Date: ___________________________',size:22,font:'Times New Roman'})],spacing:{before:80,after:240}}),
+
+    PB('SIGNED by Witness 2 in the presence of the Testator:'),
+    P('(This witness must NOT be a beneficiary or spouse of a beneficiary)',{italics:true}),...SL('Witness 2 — Signature'),
+    P('Full Name: ___________________________________'),P('Address: ___________________________________'),
+    new Paragraph({children:[new TextRun({text:'Date: ___________________________',size:22,font:'Times New Roman'})],spacing:{before:80,after:120}}),
+
+    BLK(),
+    new Paragraph({children:[new TextRun({text:'— End of Will —',size:20,font:'Times New Roman',italics:true,color:'6b7280'})],alignment:AlignmentType.CENTER,spacing:{before:120,after:120}}),
+
+    new Paragraph({children:[new TextRun({text:'',size:22})],pageBreakBefore:true}),
+    new Paragraph({children:[new TextRun({text:'IMPORTANT NOTES FOR EXECUTION OF THIS WILL',bold:true,size:26,font:'Times New Roman',color:'1a2744'})],alignment:AlignmentType.CENTER,spacing:{before:240,after:200},border:{bottom:{style:BorderStyle.SINGLE,size:6,color:'1a2744',space:4}}}),
+    BLK(),
+    PB('How to sign this Will correctly:'),
+    P('1. You (the Testator) must sign each page of this Will in the presence of BOTH witnesses simultaneously.'),
+    P("2. Both witnesses must be present at the same time — they must watch you sign and then sign themselves in your presence and in each other's presence."),
+    P('3. Witnesses must be 18 years of age or older and of sound mind.'),
+    P("4. Witnesses must NOT be beneficiaries named in this Will, nor the spouse or de facto partner of any beneficiary. A gift to a witness (or their spouse) may be voided."),
+    P('5. Sign your usual signature — the same signature you use on legal documents.'),
+    P('6. Do not alter this Will after signing — any alterations must be made by a new Will or formal codicil.'),
+    BLK(),PB('After signing:'),
+    P('\u2022 Store the original Will in a safe, fireproof location — or with your solicitor or state Supreme Court.'),
+    P('\u2022 Tell your Executor where the original Will is kept.'),
+    P('\u2022 Keep a copy for your own reference — but only the original, signed Will is legally valid.'),
+    P('\u2022 Review your Will regularly — especially after marriage, divorce, birth of children, or significant changes to your assets.'),
+    ...(MODE==='couple'?[BLK(),PB('Note for Couples Wills:'),P("Each partner's Will is a separate, independent legal document. Partners may witness each other's Wills only if neither is a beneficiary in the Will being witnessed. In practice, use two independent witnesses for each Will.")]:[] ),
+    BLK(),P('This document was generated by Australian Will Wizard for informational purposes. It does not constitute legal advice. Consider having this Will reviewed by a qualified Australian solicitor.',{italics:true}),
+  ];
+
+  const doc=new Document({
+    styles:{
+      default:{document:{run:{font:'Times New Roman',size:22}}},
+      paragraphStyles:[
+        {id:'Heading1',name:'Heading 1',basedOn:'Normal',next:'Normal',run:{size:28,bold:true,font:'Times New Roman',color:'1a2744'},paragraph:{spacing:{before:360,after:200},outlineLevel:0,alignment:AlignmentType.CENTER}},
+        {id:'Heading2',name:'Heading 2',basedOn:'Normal',next:'Normal',run:{size:24,bold:true,font:'Times New Roman',color:'1a2744'},paragraph:{spacing:{before:280,after:120},outlineLevel:1}},
+      ]
+    },
+    sections:[{properties:{page:{size:{width:11906,height:16838},margin:{top:1440,right:1440,bottom:1440,left:1440}}},children:body}]
+  });
+
+  Packer.toBlob(doc).then(blob=>{
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const safe=(t.name||'Will').replace(/[^a-zA-Z0-9 ]/g,'').trim().replace(/ /g,'_');
+    a.href=url; a.download=`Will_${safe}_${today.getFullYear()}.docx`; a.click();
+    URL.revokeObjectURL(url);
+  });
+}
+</script>
+</body>
+</html>
